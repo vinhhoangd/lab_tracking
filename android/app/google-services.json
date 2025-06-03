@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "222824437083",
+    "project_id": "lab-tracking-flutter",
+    "storage_bucket": "lab-tracking-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222824437083:android:59c1f305f55000314cf67e",
+        "android_client_info": {
+          "package_name": "com.example.lab_tracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtWoYWceA9YgZLiQJLi07DdR2P4y7ayZo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
