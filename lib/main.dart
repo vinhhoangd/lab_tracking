@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lab_tracking/Pages/signin_page.dart';
 import 'firebase_options.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -183,9 +184,10 @@ class _SplashScreenState extends State<SplashScreen>
                                   elevation: 0,
                                 ),
                                 onPressed: () {
-                                  // Add haptic feedback
-                                  // HapticFeedback.lightImpact();
-                                  // Navigate to main screen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => SignInPage()),
+                                  );
                                 },
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -210,6 +212,7 @@ class _SplashScreenState extends State<SplashScreen>
                             TextButton(
                               onPressed: () {
                                 // Navigate to login screen
+                                
                               },
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -233,34 +236,6 @@ class _SplashScreenState extends State<SplashScreen>
                 },
               ),
             ],
-          ),
-          
-          // Loading indicator at the bottom
-          Positioned(
-            bottom: 40,
-            child: AnimatedBuilder(
-              animation: _waveController,
-              builder: (context, child) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(3, (index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: 8,
-                        height: 8 + 
-                          4 * sin((_waveController.value * 2 * pi) + (index * 0.5)),
-                        decoration: BoxDecoration(
-                          color: Colors.greenAccent.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  }),
-                );
-              },
-            ),
           ),
         ],
       ),
