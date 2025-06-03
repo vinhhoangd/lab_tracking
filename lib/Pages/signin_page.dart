@@ -1,44 +1,26 @@
 import 'package:flutter/material.dart';
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends StatelessWidget {
+
+
   const SignInPage({super.key});
-
-  @override
-  State<SignInPage> createState() => _SignInPageState();
-}
-
-class _SignInPageState extends State<SignInPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController confirmEmailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  String? emailErrorText;
-
-  void validateEmails() {
-    setState(() {
-      emailErrorText = emailController.text != confirmEmailController.text
-          ? 'Emails do not match'
-          : null;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsetsGeometry.all(20),
           child: Align(
             alignment: Alignment.center,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Email field
+                //Email text field
+                
                 TextField(
-                  controller: emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    errorText: emailErrorText,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
                       borderSide: BorderSide(
@@ -58,36 +40,8 @@ class _SignInPageState extends State<SignInPage> {
 
                 SizedBox(height: 16),
 
-                // Confirm Email field
+                //Password text field 
                 TextField(
-                  controller: confirmEmailController,
-                  onChanged: (_) => validateEmails(),
-                  decoration: InputDecoration(
-                    hintText: 'Confirm Email',
-                    errorText: emailErrorText,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100),
-                      borderSide: BorderSide(
-                        color: Colors.greenAccent.shade400,
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 16),
-
-                // Password field
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
                     focusedBorder: OutlineInputBorder(
@@ -105,37 +59,33 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                   ),
+                  obscureText: true,
                 ),
 
                 SizedBox(height: 32),
 
-                // Sign in button
+                //Sign in button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent.shade400,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    backgroundColor: Colors.greenAccent.shade400, // button background color
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12)
                   ),
-                  onPressed: () {
-                    validateEmails();
-                    if (emailErrorText == null) {
-                      // Proceed with sign in
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Success!")),
-                      );
-                    }
-                  },
+                  onPressed: () => {}, 
                   child: Text(
-                    'Get Started',
+                    'Get Started', 
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
                     ),
                   ),
-                ),
+                )
+
+
               ],
             ),
           ),
         ),
+  
       ),
     );
   }
