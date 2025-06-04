@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:lab_tracking/Pages/login_page.dart';
+
+
 class SignInPage extends StatelessWidget {
 
 
@@ -78,9 +81,24 @@ class SignInPage extends StatelessWidget {
                       fontSize: 16,
                     ),
                   ),
-                )
-
-
+                ),
+                // Back to LogIn button
+                SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text(
+                    'Already have an account? Log In',
+                    style: TextStyle(color: Colors.white60),
+                  ),
+                ),
               ],
             ),
           ),
