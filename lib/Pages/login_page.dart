@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lab_tracking/Pages/signin_page.dart';
-// Make sure you have imported your HomePage widget
 import 'package:lab_tracking/Pages/home_page.dart';
-// Import Firebase Authentication
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
