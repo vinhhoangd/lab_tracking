@@ -109,6 +109,7 @@ class SignInPage extends StatelessWidget {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical:8),
                   ),
                   onPressed: () {
                     Navigator.push(
