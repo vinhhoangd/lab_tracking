@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:lab_tracking/Scanning/mobile_scanner_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
-        backgroundColor: Colors.blue,
+        title: Text(
+          'Home Page',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.greenAccent.shade400,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -32,8 +38,22 @@ class HomePage extends StatelessWidget {
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.qr_code_scanner),
-                    onPressed: () {
+                    onPressed: () async {
                       // Add barcode or QR code scanner functionality here
+                      final scannedData = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MobileScannerPage(),
+                        ),
+                      );
+
+                      if (scannedData != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Scanned Data: $scannedData')
+                            ),
+                        );
+                      }
                     },
                   ),
                 ),
