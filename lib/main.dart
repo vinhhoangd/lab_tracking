@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lab_tracking/Pages/login_page.dart';
 import 'package:lab_tracking/Pages/signin_page.dart';
 import 'firebase_options.dart';
 void main() async{
@@ -211,7 +212,10 @@ class _SplashScreenState extends State<SplashScreen>
                             TextButton(
                               onPressed: () {
                                 // Navigate to login screen
-                                
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LoginPage()),
+                                );
                               },
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
