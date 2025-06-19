@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lab_tracking/Pages/home_page.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class MobileScannerPage extends StatelessWidget {
   const MobileScannerPage({super.key});
@@ -27,7 +27,10 @@ class MobileScannerPage extends StatelessWidget {
               );
 
               // Navigate back with scanned data
-              Navigator.pop(context, scannedData);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
               break; // Exit the loop after handling the first valid barcode
             }
           }

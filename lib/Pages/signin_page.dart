@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lab_tracking/Pages/login_page.dart';
 import 'package:lab_tracking/Pages/home_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({super.key});
@@ -70,26 +70,31 @@ class SignInPage extends StatelessWidget {
                 // Sign-Up Button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent.shade400, // Button background color
+                    backgroundColor: Colors.greenAccent.shade400,
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   ),
                   onPressed: () async {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+
                     try {
-                      // Firebase Authentication logic for creating an account
-                      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                        email: emailController.text.trim(),
-                        password: passwordController.text.trim(),
+                      final response = await Supabase.instance.client.auth.signUp(
+                        email: email,
+                        password: password,
                       );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Account created successfully!')),
-                      );
-                      // Navigate to HomePage after successful sign-up
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
+
+                      if (response.user != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Account created successfully! Please verify your email.')),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      } else {
+                        throw "Unknown error during sign-up";
+                      }
                     } catch (e) {
-                      // Handle errors (e.g., invalid email, weak password)
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')),
                       );
@@ -109,7 +114,7 @@ class SignInPage extends StatelessWidget {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical:8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   onPressed: () {
                     Navigator.push(

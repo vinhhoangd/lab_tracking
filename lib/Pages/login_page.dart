@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:lab_tracking/Pages/signin_page.dart';
 import 'package:lab_tracking/Pages/home_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Declare the TextEditingControllers here
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20), // Use const here
+          padding: const EdgeInsets.all(20),
           child: Align(
             alignment: Alignment.center,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Login Title
-                const Text( // Use const here
+                const Text(
                   'Welcome Back!',
                   style: TextStyle(
                     fontSize: 24,
@@ -30,11 +28,11 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 24), // Use const here
+                const SizedBox(height: 24),
 
-                // Email text field
+                // Email TextField
                 TextField(
-                  controller: emailController, // Assign the controller
+                  controller: emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
                     focusedBorder: OutlineInputBorder(
@@ -46,7 +44,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
-                      borderSide: const BorderSide( // Use const here
+                      borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1,
                       ),
@@ -54,12 +52,11 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 16), // Use const here 
+                const SizedBox(height: 16),
 
-
-                // Password text field
+                // Password TextField
                 TextField(
-                  controller: passwordController, // Assign the controller
+                  controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
@@ -72,7 +69,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
-                      borderSide: const BorderSide( // Use const here
+                      borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1,
                       ),
@@ -80,71 +77,56 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 32), // Use const here
+                const SizedBox(height: 32),
 
                 // Log In Button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent.shade400,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12), // Use const here
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   ),
-                  onPressed: () async { // Make the function async
+                  onPressed: () async {
                     try {
-                      // Get email and password from the text fields
-                      String email = emailController.text.trim();
-                      String password = passwordController.text.trim();
+                      final email = emailController.text.trim();
+                      final password = passwordController.text.trim();
 
-                      // Optional: Check if email or password is empty
                       if (email.isEmpty || password.isEmpty) {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           const SnackBar(content: Text('Please enter email and password')), // Use const
-                         );
-                         return; // Stop here if fields are empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter email and password')),
+                        );
+                        return;
                       }
 
-                      // Firebase Authentication logic for signing in
-                      // This is the part that replaces the TODO
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      final response = await Supabase.instance.client.auth.signInWithPassword(
                         email: email,
                         password: password,
                       );
 
-                      // If successful, navigate to the home page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logged in successfully!')), // Use const
-                      );
-                      // Use pushReplacement so the user can't go back to the login page
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-
+                      if (response.user != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Logged in successfully!')),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      } else {
+                        throw 'Unknown login error';
+                      }
                     } catch (e) {
-                      // Handle errors (e.g., user not found, wrong password)
-                      print('Error during login: $e'); // Good for debugging
+                      String errorMessage = 'Login failed. Please check your credentials.';
 
-                      String errorMessage = 'Login failed. Please check your credentials.'; // Default message
-
-                      // You can check the type of FirebaseException for more specific error messages
-                      if (e is FirebaseAuthException) {
-                         switch (e.code) {
-                           case 'user-not-found':
-                             errorMessage = 'No user found for that email.';
-                             break;
-                           case 'wrong-password':
-                             errorMessage = 'Wrong password provided for that user.';
-                             break;
-                           case 'invalid-email':
-                             errorMessage = 'The email address is invalid.';
-                             break;
-                           case 'user-disabled':
-                             errorMessage = 'This user account has been disabled.';
-                             break;
-                           // Add more cases as needed
-                           default:
-                             // Use the message from Firebase if available, otherwise use default
-                             errorMessage = e.message ?? errorMessage;
-                         }
+                      if (e is AuthException) {
+                        switch (e.message) {
+                          case 'Invalid login credentials':
+                            errorMessage = 'Wrong email or password.';
+                            break;
+                          case 'Email not confirmed':
+                            errorMessage = 'Please verify your email before logging in.';
+                            break;
+                          default:
+                            errorMessage = e.message;
+                        }
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,7 +134,7 @@ class LoginPage extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text( // Use const here
+                  child: const Text(
                     'Log In',
                     style: TextStyle(
                       color: Colors.black,
@@ -161,17 +143,16 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 16), // Use const here
+                const SizedBox(height: 16),
 
-                // Optional: Forgot password or Sign up link
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SignInPage()), // Use const here
+                      MaterialPageRoute(builder: (context) => const SignInPage()),
                     );
                   },
-                  child: const Text( // Use const here
+                  child: const Text(
                     'Don\'t have an account? Sign up',
                     style: TextStyle(color: Colors.grey),
                   ),
