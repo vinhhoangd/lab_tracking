@@ -167,7 +167,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   elevation: 0,
                                 ),
                                 onPressed: () {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => SignInPage()),

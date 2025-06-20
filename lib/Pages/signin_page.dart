@@ -3,14 +3,26 @@ import 'package:lab_tracking/Pages/login_page.dart';
 import 'package:lab_tracking/Pages/home_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<SignInPage> createState() => _SignInPageState();
+}
 
+class _SignInPageState extends State<SignInPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -77,6 +89,21 @@ class SignInPage extends StatelessWidget {
                     final email = emailController.text.trim();
                     final password = passwordController.text.trim();
 
+                    if (email.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Email and password cannot be empty.')),
+                      );
+                      return;
+                    }
+
+                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                    if (!emailRegex.hasMatch(email)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please enter a valid email address.')),
+                      );
+                      return;
+                    }
+
                     try {
                       final response = await Supabase.instance.client.auth.signUp(
                         email: email,
@@ -91,12 +118,14 @@ class SignInPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(builder: (context) => HomePage()),
                         );
-                      } else {
-                        throw "Unknown error during sign-up";
                       }
+                    } on AuthException catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: ${e.message}')),
+                      );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
+                        SnackBar(content: Text('Unexpected error: $e')),
                       );
                     }
                   },
@@ -117,7 +146,7 @@ class SignInPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
