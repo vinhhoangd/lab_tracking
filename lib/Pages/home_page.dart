@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'adjustment_page.dart';
 import 'package:lab_tracking/Scanning/mobile_scanner_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -9,7 +8,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Home Page',
           style: TextStyle(
             color: Colors.black,
@@ -31,7 +30,7 @@ class HomePage extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 5,
-                    offset: const Offset(0, 3),
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
@@ -39,11 +38,11 @@ class HomePage extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.qr_code_scanner),
+                    icon: Icon(Icons.qr_code_scanner),
                     onPressed: () async {
-                      // Navigate to the scanner page
+                      // Add barcode or QR code scanner functionality here
                       final scannedData = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -52,44 +51,14 @@ class HomePage extends StatelessWidget {
                       );
 
                       if (scannedData != null) {
-                        // Navigate to the adjustment page with the scanned data
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AdjustmentPage(scannedData: scannedData),
-                          ),
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Scanned Data: $scannedData')
+                            ),
                         );
                       }
                     },
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Save to Database button
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent.shade400,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              ),
-              onPressed: () {
-                // Navigate directly to the adjustment page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdjustmentPage(
-                      scannedData: '', // Pass an empty string or default value
-                    ),
-                  ),
-                );
-              },
-              child: const Text(
-                'Save to Database',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
                 ),
               ),
             ),
