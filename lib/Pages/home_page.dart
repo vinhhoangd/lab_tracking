@@ -13,12 +13,26 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
   bool _showAddButton = false;
   String? _scannedId;
+  String? _itemName;
+  String? _itemTimestamp;
+  String? _itemLocation;
+  int? _itemQuantity;
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(String? timestamp) {
+    if (timestamp == null) return 'Unknown';
+    try {
+      final date = DateTime.parse(timestamp);
+      return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Unknown';
+    }
   }
 
   Future<void> _checkIdInDatabase(String scannedId) async {
@@ -29,25 +43,41 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      // Check if code_id exists in scanned_data table
+      String trimmedId = scannedId.trim();
+      print('Scanned ID: "$trimmedId" (length: ${trimmedId.length})');
       final response = await Supabase.instance.client
           .from('scanned_data')
-          .select('code_id')
-          .eq('code_id', scannedId)
+          .select('code_id, item_name, timestamp, location, quantity')
+          .eq('code_id', trimmedId)
           .maybeSingle();
 
+      print('📊 Database response: $response');
+      
       setState(() {
         _isLoading = false;
-        // Show button only if no matching ID was found
-        _showAddButton = response == null;
+        if (response != null) {
+          print('Found existing item: ${response['item_name']}');
+          _showAddButton = false;
+          _itemName = response['item_name'] as String?;
+          _itemTimestamp = response['timestamp'] as String?;
+          _itemLocation = response['location'] as String?;
+          _itemQuantity = response['quantity'] as int?;
+        } else {
+          print('No existing item found');
+          _showAddButton = true;
+          _itemName = null;
+          _itemTimestamp = null;
+          _itemLocation = null;
+          _itemQuantity = null;
+        }
       });
 
       if (response != null) {
         // ID already exists in database
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('ID $scannedId already exists in database'),
-            backgroundColor: Colors.orange,
+            content: Text('Item found: ${_itemName ?? 'Unknown'} (Last modified: ${_formatDate(_itemTimestamp)})'),
+            backgroundColor: Colors.blue,
           ),
         );
       } else {
@@ -101,6 +131,10 @@ class _HomePageState extends State<HomePage> {
         _isLoading = false;
         _showAddButton = false; // Hide button after successful addition
         _scannedId = null; // Clear the scanned ID
+        _itemName = null; // Clear item details
+        _itemTimestamp = null; // Clear item details
+        _itemLocation = null;
+        _itemQuantity = null;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -207,6 +241,80 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showModifyDialog() {
+    final nameController = TextEditingController(text: _itemName ?? '');
+    final quantityController = TextEditingController(text: _itemQuantity?.toString() ?? '');
+    final locationController = TextEditingController(text: _itemLocation ?? '');
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Modify Item'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Item Name'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: quantityController,
+              decoration: const InputDecoration(labelText: 'Quantity'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: locationController,
+              decoration: const InputDecoration(labelText: 'Location'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              final newQuantity = int.tryParse(quantityController.text.trim());
+              final newLocation = locationController.text.trim();
+
+              if (newName.isEmpty || newQuantity == null || newLocation.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill all fields correctly')),
+                );
+                return;
+              }
+
+              await Supabase.instance.client
+                  .from('scanned_data')
+                  .update({
+                    'item_name': newName,
+                    'quantity': newQuantity,
+                    'location': newLocation,
+                  })
+                  .eq('code_id', _scannedId!);
+
+              setState(() {
+                _itemName = newName;
+                _itemQuantity = newQuantity;
+                _itemLocation = newLocation;
+              });
+
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Item updated!'), backgroundColor: Colors.green),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -237,12 +345,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              child: TextField(
+              child: 
+              TextField(
                 controller: _searchController,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search...',
+                  hintStyle: TextStyle(color: Colors.grey),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.qr_code_scanner),
                     onPressed: () async {
@@ -254,10 +368,10 @@ class _HomePageState extends State<HomePage> {
                       );
 
                       if (scannedData != null) {
-                        // Check if this ID exists in the database
+                        
                         await _checkIdInDatabase(scannedData);
                         
-                        // Also populate the search field with scanned data
+                        
                         _searchController.text = scannedData;
                       }
                     },
@@ -289,6 +403,70 @@ class _HomePageState extends State<HomePage> {
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.green.shade700,
                           fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      // Display item details if they exist
+                      if (_itemName != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Item Name:',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _itemName!,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.blue.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Quantity:',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${_itemQuantity ?? 'Unknown'}',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Location:',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${_itemLocation ?? 'Unknown'}',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Last Modified: ${_formatDate(_itemTimestamp)}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: Icon(Icons.edit, color: Colors.greenAccent.shade400),
+                          tooltip: 'Modify Item',
+                          onPressed: _showModifyDialog,
                         ),
                       ),
                     ],
