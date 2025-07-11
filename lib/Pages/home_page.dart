@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   String? _itemLocation;
   int? _itemQuantity;
   final TextEditingController _searchController = TextEditingController();
+  int _selectedIndex = 0;
 
   @override
   void dispose() {
@@ -315,10 +316,36 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _onBottomNavTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      // Home: clear all fields to refresh
+      setState(() {
+        _searchController.clear();
+        _scannedId = null;
+        _itemName = null;
+        _itemTimestamp = null;
+        _itemLocation = null;
+        _itemQuantity = null;
+        _showAddButton = false;
+      });
+    } else if (index == 1) {
+      // Settings: navigate to SettingsPage (to be created)
+      Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderPage(title: 'Settings')));
+    } else if (index == 2) {
+      // AI: navigate to AI Page (to be created)
+      Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderPage(title: 'AI Handwriting Recognition')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, 
         title: Text(
           'Home Page',
           style: TextStyle(
@@ -518,6 +545,37 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onBottomNavTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome), // Sparkle icon
+            label: 'AI',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PlaceholderPage extends StatelessWidget {
+  final String title;
+  const PlaceholderPage({required this.title, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text('$title Duc Vinh Hoang Vietnamese andre testing')),
     );
   }
 }
