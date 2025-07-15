@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lab_tracking/Scanning/mobile_scanner_page.dart';
+import 'package:lab_tracking/Pages/settings_page.dart';
+import 'package:lab_tracking/Pages/ai_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -316,7 +318,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onBottomNavTapped(int index) {
+  void _onBottomNavTapped(int index) async {
+    if (index == 1) {
+      // Scan: open scanner
+      final scannedData = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MobileScannerPage(),
+        ),
+      );
+
+      if (scannedData != null) {
+        await _checkIdInDatabase(scannedData);
+      }
+      // Keep Home selected after scanning
+      setState(() {
+        _selectedIndex = 0;
+      });
+      return;
+    }
+
     setState(() {
       _selectedIndex = index;
     });
@@ -332,12 +353,12 @@ class _HomePageState extends State<HomePage> {
         _itemQuantity = null;
         _showAddButton = false;
       });
-    } else if (index == 1) {
-      // Settings: navigate to SettingsPage (to be created)
-      Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderPage(title: 'Settings')));
     } else if (index == 2) {
+      // Settings: navigate to SettingsPage
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+    } else if (index == 3) {
       // AI: navigate to AI Page (to be created)
-      Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderPage(title: 'AI Handwriting Recognition')));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AIPage()));
     }
   }
 
@@ -358,56 +379,6 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Search bar with QR code scanner icon
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: 
-              TextField(
-                controller: _searchController,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.qr_code_scanner),
-                    onPressed: () async {
-                      final scannedData = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MobileScannerPage(),
-                        ),
-                      );
-
-                      if (scannedData != null) {
-                        
-                        await _checkIdInDatabase(scannedData);
-                        
-                        
-                        _searchController.text = scannedData;
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
 
             // Display scanned ID if available
             if (_scannedId != null) ...[
@@ -546,12 +517,20 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onBottomNavTapped,
+        selectedItemColor: Colors.greenAccent.shade400,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -563,19 +542,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class PlaceholderPage extends StatelessWidget {
-  final String title;
-  const PlaceholderPage({required this.title, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('$title Duc Vinh Hoang Vietnamese andre testing')),
     );
   }
 }
