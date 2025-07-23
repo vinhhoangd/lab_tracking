@@ -355,11 +355,92 @@ class _HomePageState extends State<HomePage> {
       });
     } else if (index == 2) {
       // Settings: navigate to SettingsPage
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
     } else if (index == 3) {
       // AI: navigate to AI Page (to be created)
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const AIPage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AIPage()));
     }
+  }
+
+  Widget _buildFeatureCarousel() {
+    return SizedBox(
+      height: 56,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildFeatureCard(
+            icon: Icons.edit,
+            label: 'Lab note',
+            onTap: () {
+              // TODO: Implement Lab note functionality
+            },
+          ),
+          _buildFeatureCard(
+            icon: Icons.menu_book,
+            trailingIcon: Icons.search,
+            label: 'Handwriting',
+            onTap: () {
+              // TODO: Implement Handwriting Recognition functionality
+            },
+          ),
+          _buildFeatureCard(
+            icon: Icons.calendar_today,
+            label: 'Scheduling',
+            onTap: () {
+              // TODO: Implement Scheduling functionality
+            },
+          ),
+          // Add more cards here as needed
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    IconData? trailingIcon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 130,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.12),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 20, color: Colors.greenAccent.shade400),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 2),
+                Icon(trailingIcon, size: 16, color: Colors.greenAccent.shade400),
+              ],
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -379,6 +460,8 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            _buildFeatureCarousel(),
+            const SizedBox(height: 16),
 
             // Display scanned ID if available
             if (_scannedId != null) ...[
