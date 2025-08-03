@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lab_tracking/Scanning/mobile_scanner_page.dart';
 import 'package:lab_tracking/Pages/settings_page.dart';
 import 'package:lab_tracking/Pages/ai_page.dart';
+import 'package:lab_tracking/Pages/lab_note_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -355,10 +356,10 @@ class _HomePageState extends State<HomePage> {
       });
     } else if (index == 2) {
       // Settings: navigate to SettingsPage
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
     } else if (index == 3) {
       // AI: navigate to AI Page (to be created)
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AIPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AIPage()));
     }
   }
 
@@ -372,7 +373,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.edit,
             label: 'Lab note',
             onTap: () {
-              // TODO: Implement Lab note functionality
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LabNotePage()),
+              );
             },
           ),
           _buildFeatureCard(
